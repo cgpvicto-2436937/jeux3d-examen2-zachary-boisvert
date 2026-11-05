@@ -1,4 +1,7 @@
+using System;
 using System.Collections;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -31,6 +34,12 @@ public class Boule : MonoBehaviour
 
     [SerializeField, Tooltip("Multiplicateur de force appliqué lors de l'accélération.")]
     float multiplicateurForceAcceleration = 15.0f;
+
+    // Nombre de charge de boost
+    private int nombrePiece;
+
+    [SerializeField]
+    private TMP_Text textPiece;
 
     /// <summary>
     /// Obtient la vélocité actuelle de la boule.
@@ -74,6 +83,7 @@ public class Boule : MonoBehaviour
         controles.actions.FindAction("Diriger").canceled += ArreterDirection;
         controles.actions.FindAction("Accelerer").performed += UtiliserChargeAcceleration;
         controles.actions.FindAction("Commencer").performed -= CommencerJeu;
+        controles.actions.FindAction("Pause").performed += PauserInclinaison;
 
         rigidbody.useGravity = true;
     }
@@ -84,6 +94,8 @@ public class Boule : MonoBehaviour
         {
             cibleCamera.position = rigidbody.position;
         }
+
+        MettreAJourInterface();
     }
 
     private void FixedUpdate()
@@ -134,5 +146,41 @@ public class Boule : MonoBehaviour
             yield return new WaitForFixedUpdate();
         }
         enAcceleration = false;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Piece"))
+        {
+            nombrePiece++;
+            Destroy(other.GameObject());
+        }
+    }
+
+    private void MettreAJourInterface()
+    {
+        if (textPiece != null)
+        {
+            textPiece.text = "Pièces : " + nombrePiece;
+        }
+    }
+
+    private void PauserInclinaison(InputAction.CallbackContext contexte)
+    {
+        if (nombrePiece >= 5)
+        {
+            StartCoroutine(PauseInclinaison());
+        }
+        else
+        {
+            Debug.Log("Pas assez de piece");
+        }
+    }
+
+    private IEnumerator PauseInclinaison()
+    {
+        Debug.Log("Pause");
+        yield return new WaitForSeconds(5);
+        Debug.Log("Fin pause");
     }
 }

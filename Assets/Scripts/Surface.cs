@@ -8,12 +8,19 @@ public class Surface : MonoBehaviour
     /// </summary>
     public DetecteurBoule Detecteur { get; private set; }
 
+    private Animator animationController;
+
     [SerializeField, Tooltip("Positions de génération des objets sur la surface.")]
     private Vector3[] positionGeneration;
 
     private void Awake()
     {
         Detecteur = GetComponent<DetecteurBoule>();
+
+        if (!TryGetComponent<Animator>(out animationController))
+        {
+            Debug.LogError("Pas de composant Animator sur la platoforme");
+        }
     }
 
     /// <summary>
